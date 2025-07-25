@@ -12,7 +12,7 @@ async function main() {
     }
     if (args.length < 3) {
     console.error('Error ! A minimum of 3 dice is required to start the game.');
-    process.exit(1); // Завершаем процесс с кодом ошибки
+    process.exit(1);
 }
     let dice = [];
     try {
