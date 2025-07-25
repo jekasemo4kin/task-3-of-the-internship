@@ -10,6 +10,10 @@ async function main() {
         console.log("Error! No arguments passed");
         return;
     }
+    if (args.length < 3) {
+    console.error('Error ! A minimum of 3 dice is required to start the game.');
+    process.exit(1); // Завершаем процесс с кодом ошибки
+}
     let dice = [];
     try {
         dice = DiceConfigParser.parseDice(args);
@@ -105,6 +109,14 @@ async function main() {
             gameController
         );
 
+//
+// node src/index.js       
+// node src/index.js 2,2,4,4,9,9 6,8,1,1,8,6 
+// node src/index.js 2,2,4,4,9,9 6,8,1,1,8,6 71,5,13,7,5,55,5,4
+// node src/index.js 2,2,4,4,9,9 6,8,1,1,8,6 71,5,13,7,text
+// node src/index.js 1,2,3,4,5,6 1,2,3,4,5,6 1,2,3,4,5,6 1,2,3,4,5,6       с примера
+// node src/index.js 2,2,4,4,9,9 1,1,6,6,8,8 3,3,5,5,7,7                   с примера
+// node src/index.js 1,1,1,1,1,1 2,2,2,2,2,2 3,3,3,3,3,3 4,4,4,4,4,4 5,5,5,5,5,555555
     } else {
         computerRollFaceIndex = await GameProtocol.conductDiceRollPhase(
             0,
