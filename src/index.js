@@ -12,7 +12,7 @@ async function main() {
     }
     let dice = [];
     try {
-        dice = DiceConfigParser.parseDice(args); // массив типа Dice
+        dice = DiceConfigParser.parseDice(args);
         console.log("Dice configuration successfully loaded:");
         dice.forEach((d, index) => {
             console.log(`Dice ${index}: ${d}`);
@@ -21,7 +21,7 @@ async function main() {
         console.error(error.message);
         return;
     }
-    const gameController = new GameController(dice); // Создаем экземпляр GameController
+    const gameController = new GameController(dice);
 
     console.log("Let's determine who makes the first move.");
 
@@ -38,7 +38,7 @@ async function main() {
 
     let firstPicker = null;
 
-    if (playerGoesFirst) { // флаг, показывающий кто первый ходит
+    if (playerGoesFirst) {
         firstPicker = 'player';
         const availablePlayerDiceIndexes = gameController.getAvailableDiceIndexes();
         const playerDisplayChoice = await GameProtocol.askInputWithValidation(
@@ -55,7 +55,6 @@ async function main() {
         computerDiceOriginalIndex = gameController.getWinningDiceIndex(playerDiceOriginalIndex, availableComputerDiceIndexes);
 
         if (computerDiceOriginalIndex === null) {
-            // Если ПК не может найти выигрышный кубик, то выбирает случайный из доступных
             computerDiceOriginalIndex = availableComputerDiceIndexes[FairNumberGenerator.generateSecureRandomNumber(0, availableComputerDiceIndexes.length - 1)];
 
             console.log(`Warning: Computer could not find a winning dice against your choice. Computer chose dice with index ${computerDiceOriginalIndex} (${dice[computerDiceOriginalIndex].toString()})`);
@@ -82,14 +81,12 @@ async function main() {
         );
         playerDiceOriginalIndex = gameController.getOriginalDiceIndexFromDisplayIndex(playerDisplayChoice);
         if (playerDiceOriginalIndex === null) { //никогда тут не буду по сути. хай будет
-            // Если игрок ввел невалидный индекс, выбираем первый доступный (это должна быть обработка ошибки, не нормальное поведение)
             playerDiceOriginalIndex = availablePlayerDiceIndexes[0];
-            //console.log(`Warning: Invalid input from player. Player defaulted to Dice ${playerDiceOriginalIndex + 1}.`);
         } else {
             console.log(`You choose the ${dice[playerDiceOriginalIndex].toString()} dice.`);
         }
     }
-    gameController.setDiceChoices(playerDiceOriginalIndex, computerDiceOriginalIndex); // патчит gameController новыми полями
+    gameController.setDiceChoices(playerDiceOriginalIndex, computerDiceOriginalIndex);
     let playerRollFaceIndex;
     let computerRollFaceIndex;
     if (firstPicker === 'player') {

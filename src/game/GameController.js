@@ -1,43 +1,34 @@
 const AsciiTable = require('ascii-table');
-
 class GameController {
     constructor(dice) {
         this.dice = dice;
         this.playerDiceIndex = -1;
         this.computerDiceIndex = -1;
-        this.lastAvailableDiceIndexes = []; // Сохраняет последние доступные исходные индексы игральных костей
+        this.lastAvailableDiceIndexes = [];
     }
-
     displayAvailableDice(availableDiceIndexes) {
-        this.lastAvailableDiceIndexes = availableDiceIndexes; // Сохраняем исходные индексы, которые были переданы
+        this.lastAvailableDiceIndexes = availableDiceIndexes;
         availableDiceIndexes.forEach((originalIndex, displayIndex) => {
             if (this.dice[originalIndex]) {
                 console.log(`${displayIndex} - ${this.dice[originalIndex].faces.join(',')}`);
             }
         });
     }
-
-    // Преобразует индекс отображения (0, 1, 2...) обратно в исходный индекс массива игральных костей
     getOriginalDiceIndexFromDisplayIndex(displayIndex) {
         if (displayIndex >= 0 && displayIndex < this.lastAvailableDiceIndexes.length) {
             return this.lastAvailableDiceIndexes[displayIndex];
         }
         return null;
     }
-
-    // Устанавливает выбранные кости для игрока и компьютера
     setDiceChoices(playerDiceOriginalIndex, computerDiceOriginalIndex) {
         this.playerDiceIndex = playerDiceOriginalIndex;
         this.computerDiceIndex = computerDiceOriginalIndex;
     }
-
     playRound(computerRollFaceIndex, playerRollFaceIndex) {
         const playerDice = this.dice[this.playerDiceIndex];
         const computerDice = this.dice[this.computerDiceIndex];
-
         const playerResult = playerDice.faces[playerRollFaceIndex];
         const computerResult = computerDice.faces[computerRollFaceIndex];
-
         let result;
         if (playerResult > computerResult) {
             result = 'Player wins!';
@@ -46,24 +37,18 @@ class GameController {
         } else {
             result = 'Tie!';
         }
-
         console.log(`Your dice ${this.playerDiceIndex + 1} (${playerDice.faces.join(',')}) rolled face: ${playerResult}`);
         console.log(`My dice ${this.computerDiceIndex + 1} (${computerDice.faces.join(',')}) rolled face: ${computerResult}`);
         console.log(`Result: ${result}`);
     }
-
-// Получить доступные индексы кубиков, за исключением указанных
     getAvailableDiceIndexes(excludeIndexes = []) {
         const allIndexes = Array.from({ length: this.dice.length }, (_, i) => i);
         return allIndexes.filter(index => !excludeIndexes.includes(index));
     }
-
-// Рассчитывает вероятность выигрыша кубика A против кубика B
     #calculateWinProbability(diceA, diceB) {
         let wins = 0;
         let losses = 0;
         let ties = 0;
-
         for (const faceA of diceA.faces) {
             for (const faceB of diceB.faces) {
                 if (faceA > faceB) {
@@ -79,19 +64,15 @@ class GameController {
         if (totalOutcomes === 0) return 'N/A';
         return (wins / totalOutcomes).toFixed(4);
     }
-
-// Находит кость, которая выигрывает против заданной кости противника, из списка доступных костей.
-// Если выигрывают несколько костей, выбирается первая. Возвращает исходный индекс.
     getWinningDiceIndex(opponentDiceOriginalIndex, availableDiceOriginalIndexes) {
         const opponentDice = this.dice[opponentDiceOriginalIndex];
         let bestWinningDiceIndex = null;
         let maxWinProbability = -1;
-
         for (const currentDiceOriginalIndex of availableDiceOriginalIndexes) {
             const currentDice = this.dice[currentDiceOriginalIndex];
             if (currentDice) {
                 const winProb = parseFloat(this.#calculateWinProbability(currentDice, opponentDice));
-                if (winProb > 0.5 && winProb > maxWinProbability) { // Нашел выигрышную кость, и она лучше предыдущей.
+                if (winProb > 0.5 && winProb > maxWinProbability) {
                     maxWinProbability = winProb;
                     bestWinningDiceIndex = currentDiceOriginalIndex;
                 }
@@ -99,16 +80,10 @@ class GameController {
         }
         return bestWinningDiceIndex;
     }
-
-// Находит оптимальный стартовый кубик для компьютера, когда он ходит первым.
-// Он выбирает кубик, который выигрывает у большинства других кубиков.
-// Если несколько кубиков одинаково «оптимальны», выбирается случайный кубик.
     getOptimalStartingDiceIndex() {
         const numDice = this.dice.length;
         let optimalDiceIndexes = [];
         let maxWinsAgainstOthers = -1;
-
-// Рассчитать количество выигрышей для каждого кубика по сравнению со всеми остальными кубиками
         const winCounts = new Array(numDice).fill(0);
         for (let i = 0; i < numDice; i++) {
             for (let j = 0; j < numDice; j++) {
@@ -120,40 +95,30 @@ class GameController {
                 }
             }
         }
-
-// Найти кости с максимальным числом выигрышей
         for (let i = 0; i < numDice; i++) {
             if (winCounts[i] > maxWinsAgainstOthers) {
                 maxWinsAgainstOthers = winCounts[i];
-                optimalDiceIndexes = [i]; // Начать новый список оптимальных кубиков
+                optimalDiceIndexes = [i];
             } else if (winCounts[i] === maxWinsAgainstOthers) {
                 optimalDiceIndexes.push(i);
             }
         }
-
-// Если все кубики одинаково хороши/плохи, выбираем случайный кубик
         if (optimalDiceIndexes.length === 0 || maxWinsAgainstOthers === 0) {
             const randomIndex = Math.floor(Math.random() * numDice);
             return randomIndex;
         }
-
-// Выбрать случайный кубик из оптимальных
         const randomIndexInOptimalList = Math.floor(Math.random() * optimalDiceIndexes.length);
         return optimalDiceIndexes[randomIndexInOptimalList];
     }
-
-// Метод отображения таблицы вероятностей выигрыша
     displayProbabilityTable() {
         console.log('\nProbability of the win for the user:');
         const numDice = this.dice.length;
         const table = new AsciiTable('');
-
         const headerRow = ['User dice v'];
         this.dice.forEach((dice, index) => {
             headerRow.push(`D${index + 1} (${dice.faces.join(',')})`);
         });
         table.setHeading(...headerRow);
-
         for (let i = 0; i < numDice; i++) {
             const row = [`D${i + 1} (${this.dice[i].faces.join(',')})`];
             for (let j = 0; j < numDice; j++) {
@@ -168,5 +133,4 @@ class GameController {
         console.log(table.toString());
     }
 }
-
 module.exports = GameController;

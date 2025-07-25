@@ -19,9 +19,9 @@ class GameProtocol {
     static async askInputWithValidation(promptMessage, validNumericValues, gameControllerInstance, displaySpecificOptionsFn) {
         let isValidInput = false;
         let userInput;
-        while (!isValidInput) { // цикл будет повторяться, пока юзер не введёт корректное значение
+        while (!isValidInput) {
             if (displaySpecificOptionsFn) {
-                displaySpecificOptionsFn(validNumericValues); // validNumericValues - validValues - массив в зависимости от range [0,1,2,3,4,....,max (или range-1)]
+                displaySpecificOptionsFn(validNumericValues);
             }
             GameProtocol.#displayGeneralOptions();
             userInput = (await GameProtocol.#readLineAsync(promptMessage)).trim().toLowerCase();
@@ -106,7 +106,7 @@ class GameProtocol {
             promptMessage,
             gameControllerInstance
         );
-        return finalResult; // Возвращаем финальный индекс грани
+        return finalResult;
     }
 }
 module.exports = GameProtocol;
