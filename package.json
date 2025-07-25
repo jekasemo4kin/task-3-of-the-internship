@@ -1,0 +1,22 @@
+{
+  "name": "nontransition-dice-game",
+  "version": "1.0.0",
+  "description": "A non-transitive dice game with provably fair number generation.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js 2,2,4,4,9,9 6,6,1,1,8,8 7,5,3,7,5,3",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "dice",
+    "non-transitive",
+    "game",
+    "provably-fair"
+  ],
+  "author": "Zasolovskyolo jekasemo4kin@gmail.com",
+  "license": "ISC",
+  "dependencies": {
+    "ascii-table": "^0.0.9",
+    "js-sha3": "^0.9.3"
+  }
+}
