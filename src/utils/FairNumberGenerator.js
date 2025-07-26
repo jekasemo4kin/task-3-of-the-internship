@@ -3,16 +3,6 @@ class FairNumberGenerator {
     static generateSecretKey(bytes = 32) {
         return crypto.randomBytes(bytes).toString('hex');
     }
-    static generateSecureRandomNumber(min, max) {
-        if (min > max) {
-            throw new Error('Error ! The minimum value cannot be greater than the maximum.');
-        }
-        const range = max - min + 1;
-        if (range <= 0) {
-            throw new Error('Error ! The range must be positive.');
-        }
-        return crypto.randomInt(min, max+1);
-    }
     static calculateHmacSha3(message, key) {
         try {
             if (crypto.getHashes().includes('sha3-256')) {

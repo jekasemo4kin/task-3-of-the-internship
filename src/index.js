@@ -1,8 +1,8 @@
-const Dice = require('./models/Dice');
+const crypto = require('crypto');
 const DiceConfigParser = require('./utils/DiceConfigParser');
 const GameController = require('./game/GameController');
 const GameProtocol = require('./game/GameProtocol');
-const FairNumberGenerator = require('./utils/FairNumberGenerator');
+
 
 async function main() {
     const args = process.argv.slice(2);
@@ -47,9 +47,11 @@ async function main() {
         const availablePlayerDiceIndexes = gameController.getAvailableDiceIndexes();
         const playerDisplayChoice = await GameProtocol.askInputWithValidation(
             "Choose your dice:\nYour choice: ",
-            availablePlayerDiceIndexes.map((_, i) => i),
+            //availablePlayerDiceIndexes.map((_, i) => i),
+            Array.from({ length: availablePlayerDiceIndexes.length }, (_, i) => i), //vo
             gameController,
-            gameController.displayAvailableDice.bind(gameController)
+            gameController.displayAvailableDice.bind(gameController),
+            availablePlayerDiceIndexes
         );
         playerDiceOriginalIndex = gameController.getOriginalDiceIndexFromDisplayIndex(playerDisplayChoice);
 
@@ -59,7 +61,7 @@ async function main() {
         computerDiceOriginalIndex = gameController.getWinningDiceIndex(playerDiceOriginalIndex, availableComputerDiceIndexes);
 
         if (computerDiceOriginalIndex === null) {
-            computerDiceOriginalIndex = availableComputerDiceIndexes[FairNumberGenerator.generateSecureRandomNumber(0, availableComputerDiceIndexes.length - 1)];
+            computerDiceOriginalIndex = availableComputerDiceIndexes[crypto.randomInt(0, availableComputerDiceIndexes.length)];
 
             console.log(`Warning: Computer could not find a winning dice against your choice. Computer chose dice with index ${computerDiceOriginalIndex} (${dice[computerDiceOriginalIndex].toString()})`);
         
@@ -79,9 +81,11 @@ async function main() {
         const availablePlayerDiceIndexes = gameController.getAvailableDiceIndexes([computerDiceOriginalIndex]);
         const playerDisplayChoice = await GameProtocol.askInputWithValidation(
             "Choose your dice:\nYour choice: ",
-            availablePlayerDiceIndexes.map((_, i) => i),
+            //availablePlayerDiceIndexes.map((_, i) => i),  
+            Array.from({ length: availablePlayerDiceIndexes.length }, (_, i) => i),
             gameController,
-            gameController.displayAvailableDice.bind(gameController)
+            gameController.displayAvailableDice.bind(gameController),
+            availablePlayerDiceIndexes
         );
         playerDiceOriginalIndex = gameController.getOriginalDiceIndexFromDisplayIndex(playerDisplayChoice);
         if (playerDiceOriginalIndex === null) { //никогда тут не буду по сути. хай будет

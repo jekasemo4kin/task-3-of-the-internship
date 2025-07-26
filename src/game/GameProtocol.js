@@ -1,5 +1,6 @@
 const readline = require('readline');
 const FairNumberGenerator = require('../utils/FairNumberGenerator');
+const crypto = require('crypto');
 
 class GameProtocol {
     static #readLineAsync(query) {
@@ -16,12 +17,12 @@ class GameProtocol {
         console.log(`X - exit`);
         console.log(`? - help`);
     }
-    static async askInputWithValidation(promptMessage, validNumericValues, gameControllerInstance, displaySpecificOptionsFn) {
+    static async askInputWithValidation(promptMessage, validNumericValuesForValidation, gameControllerInstance, displaySpecificOptionsFn, actualDiceIndexesForDisplay) {
         let isValidInput = false;
         let userInput;
         while (!isValidInput) {
             if (displaySpecificOptionsFn) {
-                displaySpecificOptionsFn(validNumericValues);
+                displaySpecificOptionsFn(actualDiceIndexesForDisplay);
             }
             GameProtocol.#displayGeneralOptions();
             userInput = (await GameProtocol.#readLineAsync(promptMessage)).trim().toLowerCase();
@@ -37,7 +38,7 @@ class GameProtocol {
                 continue;
             }
             const numInput = parseInt(userInput);
-            if (!isNaN(numInput) && validNumericValues.includes(numInput)) {
+            if (!isNaN(numInput) && validNumericValuesForValidation.includes(numInput)) {
                 isValidInput = true;
             } else {
                 console.log(`Error ! Invalid input. Please enter a valid option.`);
@@ -47,7 +48,7 @@ class GameProtocol {
     }
     static async #performCommitRevealProtocol(min,max,commitMessage,revealMessage,inputPromptMessage,gameControllerInstance){
         const range = max - min + 1;
-        const systemRandomNumberX = FairNumberGenerator.generateSecureRandomNumber(min, max);
+        const systemRandomNumberX = crypto.randomInt(min, max+1);
         const systemSecretKey = FairNumberGenerator.generateSecretKey();
         const systemHmac = FairNumberGenerator.calculateHmacSha3(systemRandomNumberX, systemSecretKey);
 
@@ -61,7 +62,8 @@ class GameProtocol {
             inputPromptMessage,
             validValues,
             gameControllerInstance,
-            displayNumericOptions
+            displayNumericOptions,
+            validValues
         );
 
         console.log(revealMessage.replace(/{x}/g, systemRandomNumberX).replace(/{key}/g, systemSecretKey).replace(/{hmac}/g, systemHmac));
