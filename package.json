@@ -17,6 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "ascii-table": "^0.0.9",
-    "js-sha3": "^0.9.3"
+    "js-sha3": "^0.9.3",
+    "random-js": "^2.1.0"
   }
 }

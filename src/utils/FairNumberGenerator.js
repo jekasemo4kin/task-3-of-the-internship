@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-
+const { Random } = require('random-js');
 class FairNumberGenerator {
     static generateSecretKey(bytes = 32) {
         return crypto.randomBytes(bytes).toString('hex');
@@ -12,11 +12,7 @@ class FairNumberGenerator {
         if (range <= 0) {
             throw new Error('Error ! The range must be positive.');
         }
-        const bytesNeeded = 4;
-        const randomBytes = crypto.randomBytes(bytesNeeded);
-        const randomNumber = randomBytes.readUIntBE(0, bytesNeeded);
-        const finalGeneratedNumber = min + (randomNumber % range);
-        return finalGeneratedNumber;
+        return new Random().integer(min, max);
     }
     static calculateHmacSha3(message, key) {
         try {
